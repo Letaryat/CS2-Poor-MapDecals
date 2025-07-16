@@ -49,7 +49,7 @@ Tried to make plugin idiot proof (since I did a lot of mistakes).
 | css_pingdecals | Allows to place decals using Ping function |
 | css_removedecal **ID** | Remove already placed decal using ID |
 | css_tpdecal **ID** | Teleports to already existing decal using ID |
-| css_shotdecals | Prints info to console about all decals that are placed on map |
+| css_showdecals | Prints info to console about all decals that are placed on map |
 | css_printdecals | Prints a list of all decals that can be placed to console |
 
 ## [❤️] Special thanks to:
