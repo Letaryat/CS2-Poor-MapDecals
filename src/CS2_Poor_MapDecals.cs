@@ -1,4 +1,5 @@
-﻿using CounterStrikeSharp.API.Core;
+﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API.Core;
 using CS2_Poor_MapDecals.Config;
 using CS2_Poor_MapDecals.Managers;
 using CS2_Poor_MapDecals.Utils;
@@ -45,6 +46,16 @@ public class CS2_Poor_MapDecals : BasePlugin, IPluginConfig<PluginConfig>
         EventManager.RegisterEvents();
         CommandsManager.RegisterCommands();
 
+        /*
+        //huj wie czy to potrzebne nie chce mi sie sprawdzac obecnie
+        if (hotReload)
+        {
+            var map = Server.MapName;
+            PropManager._mapName = map;
+            PropManager!._mapFilePath = Path.Combine(ModuleDirectory, "maps", $"{map}.json");
+        }
+        */
+        
     }
 
     public void OnConfigParsed(PluginConfig config)
