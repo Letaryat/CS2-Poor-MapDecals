@@ -1,5 +1,6 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Cvars;
 using CS2_Poor_MapDecals.Config;
 using CS2_Poor_MapDecals.Managers;
 using CS2_Poor_MapDecals.Utils;
@@ -32,6 +33,12 @@ public class CS2_Poor_MapDecals : BasePlugin, IPluginConfig<PluginConfig>
     public float DecalWidth = 128;
     public float DecalHeight = 128;
     public bool ForceOnVip = false;
+    
+    public bool GameEnded = false;
+
+    public int _maxRounds;
+    public bool _canClinch;
+    //public List<nint> CachedDecals = [];
 
     public override void Load(bool hotReload)
     {
@@ -46,6 +53,9 @@ public class CS2_Poor_MapDecals : BasePlugin, IPluginConfig<PluginConfig>
         EventManager.RegisterEvents();
         CommandsManager.RegisterCommands();
 
+        // _maxRounds = ConVar.Find("mp_maxrounds")!.GetPrimitiveValue<int>();
+        // _canClinch = ConVar.Find("mp_match_can_clinch")!.GetPrimitiveValue<bool>();
+
         /*
         //huj wie czy to potrzebne nie chce mi sie sprawdzac obecnie
         if (hotReload)
@@ -55,7 +65,7 @@ public class CS2_Poor_MapDecals : BasePlugin, IPluginConfig<PluginConfig>
             PropManager!._mapFilePath = Path.Combine(ModuleDirectory, "maps", $"{map}.json");
         }
         */
-        
+
     }
 
     public void OnConfigParsed(PluginConfig config)

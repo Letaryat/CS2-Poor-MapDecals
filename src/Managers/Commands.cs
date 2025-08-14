@@ -20,6 +20,7 @@ public class CommandsManager(CS2_Poor_MapDecals plugin)
             _plugin.AddCommand("css_tpdecal", "Teleport to BS Entity using ID", TeleportToEntity);
             _plugin.AddCommand("css_showdecals", "List of entities on this map", ShowEntityList);
             _plugin.AddCommand("css_printdecals", "List of a models that can be placed", PrintAdModels);
+            //_plugin.AddCommand("css_chuj", "List of a models that can be placed", Chuj);
         }
     }
 

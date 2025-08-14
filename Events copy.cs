@@ -1,6 +1,7 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
+using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Utils;
 
 namespace CS2_Poor_MapDecals.Managers;
@@ -8,11 +9,15 @@ namespace CS2_Poor_MapDecals.Managers;
 public class EventManager(CS2_Poor_MapDecals plugin)
 {
     private readonly CS2_Poor_MapDecals _plugin = plugin;
+    private bool kutas = false;
     public void RegisterEvents()
     {
         //Events:
         _plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
         _plugin.RegisterEventHandler<EventPlayerPing>(OnPlayerPing);
+        _plugin.RegisterEventHandler<EventRoundEnd>(OnRoundEnd);
+        _plugin.RegisterEventHandler<EventCsWinPanelMatch>(OnMatchPanel);
+        _plugin.RegisterEventHandler<EventRoundAnnounceMatchStart>(OnMatchStart);
         //Listeners:
         _plugin.RegisterListener<Listeners.OnServerPrecacheResources>((ResourceManifest manifest) =>
         {
@@ -22,13 +27,46 @@ public class EventManager(CS2_Poor_MapDecals plugin)
             }
         });
         _plugin.RegisterListener<Listeners.OnMapStart>(OnMapStart);
+        _plugin.RegisterListener<Listeners.OnMapEnd>(OnMapEnd);
+
+        _plugin.AddCommandListener("changelevel", ListenerChangeLevel, HookMode.Pre);
+        _plugin.AddCommandListener("map", ListenerChangeLevel, HookMode.Pre);
+        _plugin.AddCommandListener("host_workshop_map", ListenerChangeLevel, HookMode.Pre);
+        _plugin.AddCommandListener("ds_workshop_changelevel", ListenerChangeLevel, HookMode.Pre);
+
         //_plugin.RegisterListener<Listeners.CheckTransmit>(OnCheckTransmit);
     }
 
+    private HookResult OnMatchStart(EventRoundAnnounceMatchStart @event, GameEventInfo info)
+    {
+        Server.NextFrameAsync(() =>
+        {
+            _plugin.PropManager!.SpawnProps();
+            _plugin.DebugMode("MatchStart spawn props");
+        });
+        return HookResult.Continue;
+    }
+
+    private HookResult OnMatchPanel(EventCsWinPanelMatch @event, GameEventInfo info)
+    {
+        if (kutas) kutas = false;
+        return HookResult.Continue;
+    }
+
+    private HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
+    {
+        //if (!kutas) kutas = true;
+        return HookResult.Continue;
+    }
 
     private HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
     {
-        _plugin.PropManager!.SpawnProps();
+        if (!kutas)
+        {
+            LoadProps();
+            kutas = true;
+        }
+
         return HookResult.Continue;
     }
 
@@ -95,30 +133,47 @@ public class EventManager(CS2_Poor_MapDecals plugin)
         }
 
     }
-    */
 
+    */
 
     private void OnMapStart(string mapName)
     {
-        if (_plugin.PropManager == null) return;
-        if (_plugin.PropManager._props.Count() > 0)
-        {
-            _plugin.PropManager!._props.Clear();
-        }
+
+
+    }
+
+    private void OnMapEnd()
+    {
+
+    }
+
+    private void ClearCache()
+    {
+        _plugin.PropManager!._props.Clear();
         _plugin.AllowAdminCommands = false;
         _plugin.PingPlacement = false;
         _plugin.DecalAdToPlace = 0;
-        Server.NextFrame(() =>
-        {
-            _plugin.PropManager._mapName = mapName;
-            _plugin.PropManager!._mapFilePath = Path.Combine(_plugin.ModuleDirectory, "maps", $"{mapName}.json");
+        _plugin.GameEnded = false;
+        kutas = false;
+    }
 
+    private void LoadProps()
+    {
+        var mapName = Server.MapName;
+        _plugin.PropManager!._mapName = mapName;
+        _plugin.PropManager!._mapFilePath = Path.Combine(_plugin.ModuleDirectory, "maps", $"{mapName}.json");
+        _plugin.PropManager!.LoadPropsFromMap();
+        Server.NextFrameAsync(() =>
+        {
             _plugin.PropManager.GenerateJsonFile();
-            Server.NextFrame(() =>
-            {
-                _plugin.PropManager.LoadPropsFromMap();
-            });
         });
     }
+
+    public HookResult ListenerChangeLevel(CCSPlayerController? player, CommandInfo info)
+    {
+        ClearCache();
+        return HookResult.Continue;
+    }
+
 
 }
