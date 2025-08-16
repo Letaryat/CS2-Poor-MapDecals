@@ -8,14 +8,11 @@ namespace CS2_Poor_MapDecals.Managers;
 public class EventManager(CS2_Poor_MapDecals plugin)
 {
     private readonly CS2_Poor_MapDecals _plugin = plugin;
-    //private bool matchStarted = false;
-
     public void RegisterEvents()
     {
         //Events:
         _plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
         _plugin.RegisterEventHandler<EventPlayerPing>(OnPlayerPing);
-        //_plugin.RegisterEventHandler<EventRoundAnnounceMatchStart>(OnAnnounceMatchStart);
         //Listeners:
         _plugin.RegisterListener<Listeners.OnServerPrecacheResources>((ResourceManifest manifest) =>
         {
@@ -28,14 +25,6 @@ public class EventManager(CS2_Poor_MapDecals plugin)
         _plugin.RegisterListener<Listeners.CheckTransmit>(OnCheckTransmit);
     }
 
-    /*
-    private HookResult OnAnnounceMatchStart(EventRoundAnnounceMatchStart @event, GameEventInfo info)
-    {
-        matchStarted = true;
-        _plugin.DebugMode($"Match started: ${matchStarted}");
-        return HookResult.Continue;
-    }
-    */
     private HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
     {
         var gamerules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").FirstOrDefault()!.GameRules!;
@@ -48,7 +37,6 @@ public class EventManager(CS2_Poor_MapDecals plugin)
         }
 
         _plugin.DebugMode($"WarmupPeriod: {gamerules!.WarmupPeriod}");
-
         
         return HookResult.Continue;
     }
