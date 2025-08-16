@@ -8,11 +8,14 @@ namespace CS2_Poor_MapDecals.Managers;
 public class EventManager(CS2_Poor_MapDecals plugin)
 {
     private readonly CS2_Poor_MapDecals _plugin = plugin;
+    //private bool matchStarted = false;
+
     public void RegisterEvents()
     {
         //Events:
         _plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
         _plugin.RegisterEventHandler<EventPlayerPing>(OnPlayerPing);
+        //_plugin.RegisterEventHandler<EventRoundAnnounceMatchStart>(OnAnnounceMatchStart);
         //Listeners:
         _plugin.RegisterListener<Listeners.OnServerPrecacheResources>((ResourceManifest manifest) =>
         {
@@ -22,13 +25,31 @@ public class EventManager(CS2_Poor_MapDecals plugin)
             }
         });
         _plugin.RegisterListener<Listeners.OnMapStart>(OnMapStart);
-        //_plugin.RegisterListener<Listeners.CheckTransmit>(OnCheckTransmit);
+        _plugin.RegisterListener<Listeners.CheckTransmit>(OnCheckTransmit);
     }
 
-
+    /*
+    private HookResult OnAnnounceMatchStart(EventRoundAnnounceMatchStart @event, GameEventInfo info)
+    {
+        matchStarted = true;
+        _plugin.DebugMode($"Match started: ${matchStarted}");
+        return HookResult.Continue;
+    }
+    */
     private HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
     {
-        _plugin.PropManager!.SpawnProps();
+        var gamerules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").FirstOrDefault()!.GameRules!;
+        if (gamerules != null)
+        {
+            if (!gamerules.WarmupPeriod)
+            {
+                _plugin.PropManager!.SpawnProps();
+            }
+        }
+
+        _plugin.DebugMode($"WarmupPeriod: {gamerules!.WarmupPeriod}");
+
+        
         return HookResult.Continue;
     }
 
@@ -52,7 +73,7 @@ public class EventManager(CS2_Poor_MapDecals plugin)
         return HookResult.Continue;
     }
 
-    /*
+    
     private void OnCheckTransmit(CCheckTransmitInfoList infoList)
     {
         var allAdvs = Utilities.FindAllEntitiesByDesignerName<CEnvDecal>("env_decal");
@@ -95,7 +116,6 @@ public class EventManager(CS2_Poor_MapDecals plugin)
         }
 
     }
-    */
 
 
     private void OnMapStart(string mapName)
@@ -108,6 +128,9 @@ public class EventManager(CS2_Poor_MapDecals plugin)
         _plugin.AllowAdminCommands = false;
         _plugin.PingPlacement = false;
         _plugin.DecalAdToPlace = 0;
+
+        //matchStarted = false;
+
         Server.NextFrame(() =>
         {
             _plugin.PropManager._mapName = mapName;
