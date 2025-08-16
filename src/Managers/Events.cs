@@ -1,6 +1,7 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
+using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Utils;
 
 namespace CS2_Poor_MapDecals.Managers;
@@ -23,21 +24,42 @@ public class EventManager(CS2_Poor_MapDecals plugin)
         });
         _plugin.RegisterListener<Listeners.OnMapStart>(OnMapStart);
         //_plugin.RegisterListener<Listeners.CheckTransmit>(OnCheckTransmit);
+
+
+        _plugin.AddCommandListener("changelevel", ListenerChangeLevel, HookMode.Pre);
+        _plugin.AddCommandListener("map", ListenerChangeLevel, HookMode.Pre);
+        _plugin.AddCommandListener("host_workshop_map", ListenerChangeLevel, HookMode.Pre);
+        _plugin.AddCommandListener("ds_workshop_changelevel", ListenerChangeLevel, HookMode.Pre);
+
     }
 
     private HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
     {
-        var gamerules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").FirstOrDefault()!.GameRules!;
-        if (gamerules != null)
+
+        _plugin.DebugMode("Roundstart. Trying to spawn decals");
+
+        var gamerules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").FirstOrDefault()?.GameRules;
+        if (gamerules == null)
         {
-            if (!gamerules.WarmupPeriod)
+            _plugin.DebugMode("No Gamerules. Ending");
+            return HookResult.Continue;
+        }
+        if (!gamerules.WarmupPeriod)
+        {
+            try
             {
-                _plugin.PropManager!.SpawnProps();
+                Server.NextFrameAsync(() =>
+                {
+                    _plugin.PropManager!.SpawnProps();
+                });
             }
+            catch (Exception error)
+            {
+                _plugin.DebugMode($"WarmupPeriod Error: {error}");
+            }
+
         }
 
-        _plugin.DebugMode($"WarmupPeriod: {gamerules!.WarmupPeriod}");
-        
         return HookResult.Continue;
     }
 
@@ -61,7 +83,7 @@ public class EventManager(CS2_Poor_MapDecals plugin)
         return HookResult.Continue;
     }
 
-    
+
     private void OnCheckTransmit(CCheckTransmitInfoList infoList)
     {
         var allAdvs = Utilities.FindAllEntitiesByDesignerName<CEnvDecal>("env_decal");
@@ -106,7 +128,7 @@ public class EventManager(CS2_Poor_MapDecals plugin)
     }
 
 
-    private void OnMapStart(string mapName)
+    private void ClearingCache()
     {
         if (_plugin.PropManager == null) return;
         if (_plugin.PropManager._props.Count() > 0)
@@ -116,11 +138,15 @@ public class EventManager(CS2_Poor_MapDecals plugin)
         _plugin.AllowAdminCommands = false;
         _plugin.PingPlacement = false;
         _plugin.DecalAdToPlace = 0;
+    }
 
-        //matchStarted = false;
-
-        Server.NextFrame(() =>
+    private void OnMapStart(string mapName)
+    {
+        if (_plugin.PropManager == null) return;
+        try
         {
+            ClearingCache();
+
             _plugin.PropManager._mapName = mapName;
             _plugin.PropManager!._mapFilePath = Path.Combine(_plugin.ModuleDirectory, "maps", $"{mapName}.json");
 
@@ -129,7 +155,27 @@ public class EventManager(CS2_Poor_MapDecals plugin)
             {
                 _plugin.PropManager.LoadPropsFromMap();
             });
-        });
+        }
+        catch (Exception error)
+        {
+            _plugin.DebugMode($"[ERROR] OnMapStart {error}");
+        }
+
     }
+
+    private HookResult ListenerChangeLevel(CCSPlayerController? player, CommandInfo commandInfo)
+    {
+        try
+        {
+            ClearingCache();
+        }
+        catch (Exception error)
+        {
+            _plugin.DebugMode($"[ERROR] Clearing cache on ListenereChangeLevel: ${error}");
+        }
+
+        return HookResult.Continue;
+    }
+
 
 }
