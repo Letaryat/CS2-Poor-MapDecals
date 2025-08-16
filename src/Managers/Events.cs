@@ -9,10 +9,13 @@ namespace CS2_Poor_MapDecals.Managers;
 public class EventManager(CS2_Poor_MapDecals plugin)
 {
     private readonly CS2_Poor_MapDecals _plugin = plugin;
+    private bool isPluginReady = false;
+    private bool isMapReady = false;
     public void RegisterEvents()
     {
         //Events:
         _plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
+        _plugin.RegisterEventHandler<EventRoundEnd>(OnRoundEnd);
         _plugin.RegisterEventHandler<EventPlayerPing>(OnPlayerPing);
         //Listeners:
         _plugin.RegisterListener<Listeners.OnServerPrecacheResources>((ResourceManifest manifest) =>
@@ -33,9 +36,23 @@ public class EventManager(CS2_Poor_MapDecals plugin)
 
     }
 
+    private HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
+    {
+        if (isPluginReady)
+        {
+            isPluginReady = false;
+        }
+        return HookResult.Continue;
+    }
+
     private HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
     {
-
+        if (isPluginReady) return HookResult.Continue;
+        if (!isMapReady)
+        {
+            isMapReady = true;
+            _plugin.PropManager!.LoadPropsFromMap();
+        }
         _plugin.DebugMode("Roundstart. Trying to spawn decals");
 
         var gamerules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").FirstOrDefault()?.GameRules;
@@ -48,6 +65,7 @@ public class EventManager(CS2_Poor_MapDecals plugin)
         {
             try
             {
+                isPluginReady = true;
                 Server.NextFrameAsync(() =>
                 {
                     _plugin.PropManager!.SpawnProps();
@@ -58,6 +76,10 @@ public class EventManager(CS2_Poor_MapDecals plugin)
                 _plugin.DebugMode($"WarmupPeriod Error: {error}");
             }
 
+        }
+        else
+        {
+            _plugin.DebugMode("Not spawning - Warmup!");
         }
 
         return HookResult.Continue;
@@ -142,24 +164,22 @@ public class EventManager(CS2_Poor_MapDecals plugin)
 
     private void OnMapStart(string mapName)
     {
+        
         if (_plugin.PropManager == null) return;
         try
         {
-            ClearingCache();
 
             _plugin.PropManager._mapName = mapName;
             _plugin.PropManager!._mapFilePath = Path.Combine(_plugin.ModuleDirectory, "maps", $"{mapName}.json");
 
             _plugin.PropManager.GenerateJsonFile();
-            Server.NextFrame(() =>
-            {
-                _plugin.PropManager.LoadPropsFromMap();
-            });
         }
         catch (Exception error)
         {
             _plugin.DebugMode($"[ERROR] OnMapStart {error}");
         }
+
+        isPluginReady = false;
 
     }
 
