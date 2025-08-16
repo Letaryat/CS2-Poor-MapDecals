@@ -11,7 +11,7 @@ public class CS2_Poor_MapDecals : BasePlugin, IPluginConfig<PluginConfig>
 {
     public override string ModuleName => "CS2_Poor_MapDecals";
 
-    public override string ModuleVersion => "1.0";
+    public override string ModuleVersion => "1.01";
 
     public override string ModuleAuthor => "Letaryat | github.com/letaryat";
 
