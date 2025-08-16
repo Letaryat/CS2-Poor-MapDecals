@@ -53,7 +53,7 @@ Tried to make plugin idiot proof (since I did a lot of mistakes).
 | css_printdecals | Prints a list of all decals that can be placed to console |
 
 ## [❤️] Special thanks to:
-- [CS2-SkyboxChanger by samyycX](https://github.com/samyycX/CS2-SkyboxChanger) - For function to find id of cached material.
+- [CS2-SkyboxChanger by samyycX](https://github.com/samyycX/CS2-SkyboxChanger) - For function to find id of cached material + gamedata.
 - [Edgegamers JailBreak](https://github.com/edgegamers/Jailbreak/blob/main/mod/Jailbreak.Warden/Paint/WardenPaintBehavior.cs#L131) - For function to check if player is looking at his pretty feet.
 
 ### [🚨] Plugin might be poorly written and have some issues. I have no idea what I am doing, but when tested it worked fine.
