@@ -10,7 +10,7 @@ namespace CS2_Poor_MapDecals.Utils;
 public class PluginUtils(CS2_Poor_MapDecals plugin)
 {
     private readonly CS2_Poor_MapDecals _plugin = plugin;
-    private bool _materialSystemAvailable = true;
+    //private bool _materialSystemAvailable = true;
     public void CreateDecal(Vector cords, QAngle angle, int index, float width, float height, bool forceOnVip)
     {
 
@@ -148,7 +148,6 @@ public class PluginUtils(CS2_Poor_MapDecals plugin)
             if (pIMaterialSystem2 == IntPtr.Zero)
             {
                 _plugin.DebugMode("Material System interface not available");
-                _materialSystemAvailable = false;
                 return IntPtr.Zero;
             }
 
@@ -189,7 +188,6 @@ public class PluginUtils(CS2_Poor_MapDecals plugin)
         catch (Exception ex)
         {
             _plugin.DebugMode($"FindMaterialByPath exception: {ex.Message}");
-            _materialSystemAvailable = false;
             return IntPtr.Zero;
         }
     }
