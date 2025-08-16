@@ -22,7 +22,7 @@ public class EventManager(CS2_Poor_MapDecals plugin)
             }
         });
         _plugin.RegisterListener<Listeners.OnMapStart>(OnMapStart);
-        _plugin.RegisterListener<Listeners.CheckTransmit>(OnCheckTransmit);
+        //_plugin.RegisterListener<Listeners.CheckTransmit>(OnCheckTransmit);
     }
 
     private HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
