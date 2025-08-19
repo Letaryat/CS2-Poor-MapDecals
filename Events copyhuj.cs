@@ -15,7 +15,7 @@ public class EventManager(CS2_Poor_MapDecals plugin)
     {
         //Events:
         _plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
-        _plugin.RegisterEventHandler<EventRoundEnd>(OnRoundEnd, HookMode.Pre);
+        _plugin.RegisterEventHandler<EventRoundEnd>(OnRoundEnd);
         _plugin.RegisterEventHandler<EventPlayerPing>(OnPlayerPing);
         //Listeners:
         _plugin.RegisterListener<Listeners.OnServerPrecacheResources>((ResourceManifest manifest) =>
@@ -42,7 +42,6 @@ public class EventManager(CS2_Poor_MapDecals plugin)
         {
             isPluginReady = false;
         }
-        //RemoveAds();
         return HookResult.Continue;
     }
 
@@ -150,20 +149,6 @@ public class EventManager(CS2_Poor_MapDecals plugin)
 
     }
 
-    private void RemoveAds()
-    {
-        var allAdvs = Utilities.FindAllEntitiesByDesignerName<CEnvDecal>("env_decal");
-        if (allAdvs == null || !allAdvs.Any()) return;
-        foreach (var ad in allAdvs)
-        {
-            //if (ad?.Entity?.Name != null && ad.Entity.Name.Contains("advert"))
-            if (ad.Entity!.Name == null) continue;
-            if (ad!.Entity!.Name.StartsWith("advert") && !ad!.Entity!.Name.Contains("force"))
-            {
-                ad.Remove();
-            }
-        }
-    }
 
     private void ClearingCache()
     {
@@ -179,7 +164,7 @@ public class EventManager(CS2_Poor_MapDecals plugin)
 
     private void OnMapStart(string mapName)
     {
-
+        
         if (_plugin.PropManager == null) return;
         try
         {

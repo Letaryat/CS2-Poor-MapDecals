@@ -60,10 +60,12 @@ namespace CS2_Poor_MapDecals.Managers
 
         public void LoadPropsFromMap()
         {
+            _plugin.DebugMode("Loading props from map");
+            if (_props.Count() < 0) return;
             if (File.Exists(_mapFilePath))
             {
                 string json = File.ReadAllText(_mapFilePath);
-                if(!string.IsNullOrEmpty(json))
+                if (!string.IsNullOrEmpty(json))
                 {
                     _props.Clear();
                     var loadedProps = JsonSerializer.Deserialize<List<PropModel>>(json) ?? [];
