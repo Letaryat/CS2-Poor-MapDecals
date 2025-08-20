@@ -8,23 +8,33 @@ namespace CS2_Poor_MapDecals.Managers;
 public class EventManager(CS2_Poor_MapDecals plugin)
 {
     private readonly CS2_Poor_MapDecals _plugin = plugin;
+    public List<nint> materialPtr = new List<nint>();
     public void RegisterEvents()
     {
         //Events:
         _plugin.RegisterEventHandler<EventRoundStart>(OnRoundStart);
         _plugin.RegisterEventHandler<EventPlayerPing>(OnPlayerPing);
         //Listeners:
-        _plugin.RegisterListener<Listeners.OnServerPrecacheResources>((ResourceManifest manifest) =>
-        {
-            foreach (var prop in _plugin.Config.Props)
-            {
-                manifest.AddResource(prop);
-            }
-        });
+        _plugin.RegisterListener<Listeners.OnServerPrecacheResources>(OnPreCache);
         _plugin.RegisterListener<Listeners.OnMapStart>(OnMapStart);
+
         _plugin.RegisterListener<Listeners.CheckTransmit>(OnCheckTransmit);
     }
 
+    public void UnRegisterEvents()
+    {
+        _plugin.RemoveListener<Listeners.OnServerPrecacheResources>(OnPreCache);
+        _plugin.RemoveListener<Listeners.OnMapStart>(OnMapStart);
+        _plugin.RemoveListener<Listeners.CheckTransmit>(OnCheckTransmit);
+    }
+
+    private void OnPreCache(ResourceManifest manifest)
+    {
+        foreach (var prop in _plugin.Config.Props)
+        {
+            manifest.AddResource(prop);
+        }
+    }
 
     private HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
     {

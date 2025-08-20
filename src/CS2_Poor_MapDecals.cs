@@ -1,10 +1,12 @@
 ﻿using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Core.Attributes;
 using CS2_Poor_MapDecals.Config;
 using CS2_Poor_MapDecals.Managers;
 using CS2_Poor_MapDecals.Utils;
 using Microsoft.Extensions.Logging;
 
 namespace CS2_Poor_MapDecals;
+[MinimumApiVersion(336)]
 public class CS2_Poor_MapDecals : BasePlugin, IPluginConfig<PluginConfig>
 {
     public override string ModuleName => "CS2_Poor_MapDecals";
@@ -54,6 +56,8 @@ public class CS2_Poor_MapDecals : BasePlugin, IPluginConfig<PluginConfig>
     public override void Unload(bool hotReload)
     {
         Console.WriteLine("Unloaded CS2_Poor_MapDecals");
+        
+        EventManager!.UnRegisterEvents();
     }
 
     public void DebugMode(string message)
